@@ -9,6 +9,7 @@ const float RADIUS = 10.0;
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 800;
 
+
 struct point{
     float x;
     float y;
@@ -20,13 +21,14 @@ struct ball{
 };
 
 int main(){
+    srand(time(NULL));
     struct point pos;
     pos.x = SCREEN_WIDTH/2;
     pos.y = SCREEN_HEIGHT/2;
 
     struct point vel;
-    vel.x  = rand() % SPEED;
-    vel.y  = rand() % SPEED;
+    vel.x  = (rand() % SPEED) - SPEED/2;
+    vel.y  = (rand() % SPEED) - SPEED/2;
 
     struct ball Ball;
     Ball.pos = pos;
@@ -34,6 +36,8 @@ int main(){
 
     SDL_Window* window = NULL;
     SDL_Renderer* renderer = NULL;
+
+    SDL_Event e;
 
     if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
         printf( "SDL could not initialize! SDL_Error: %s\n", SDL_GetError() ); 
@@ -47,9 +51,14 @@ int main(){
         }else{//SDL Initialized correctly
             renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
-            int count = 0;
-            
-            while(count < 1000){
+            while(1){
+
+                SDL_PollEvent(&e);
+                if(e.type == SDL_QUIT){
+                    SDL_DestroyWindow(window);
+                    SDL_Quit();
+                    return 0;
+                }
 
                 if (Ball.pos.x + RADIUS/2 >= SCREEN_WIDTH || Ball.pos.x - RADIUS/2 <= 0) {Ball.vel.x *= -1;}
                 if (Ball.pos.y + RADIUS/2 >= SCREEN_HEIGHT || Ball.pos.y - RADIUS/2 <= 0) {Ball.vel.y *= -1;}
@@ -71,14 +80,11 @@ int main(){
                 time.tv_sec = 0;
                 time.tv_nsec = 16666670;
                 nanosleep(&time, &time2);
-
-                count++;
             }
         }
     }
 
     SDL_DestroyWindow(window);
-
     SDL_Quit();
 
     return 0;
